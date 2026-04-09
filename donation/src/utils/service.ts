@@ -222,11 +222,12 @@ export const getNotificationsByUser = async (userId: string): Promise<Notificati
   }
 };
 
-export const markNotificationAsRead = (notifId: string): void => {
-  const notifs = _loadTable(NOTIF_KEY);
-  const notif = notifs.find((n: any) => n.id === notifId);
-  if (notif) {
-    notif.read = true;
-    _saveTable(NOTIF_KEY, notifs);
+export const markNotificationAsRead = async (notifId: string): Promise<boolean> => {
+  try {
+    const response = await apiClient.put<Notification>(`/notifications/${notifId}/read`, {});
+    return response.success;
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    return false;
   }
 };
