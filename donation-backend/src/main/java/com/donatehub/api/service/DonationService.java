@@ -145,23 +145,101 @@ public class DonationService {
                 .collect(Collectors.toList());
     }
 
+    /* ─── Food Donation Methods ─── */
+    public DonationResponse createFoodDonation(Long userId, Double riceQty, Double vegQty) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        Donation donation = new Donation();
+        donation.setUser(user);
+        donation.setType(Donation.DonationType.FOOD);
+        donation.setStatus(Donation.DonationStatus.PENDING);
+        donation.setRiceQuantity(riceQty);
+        donation.setVegetableQuantity(vegQty);
+
+        Donation savedDonation = donationRepository.save(donation);
+        return mapToDonationResponse(savedDonation);
+    }
+
+    public List<DonationResponse> getFoodDonationsByUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        return donationRepository.findByUserAndType(user, Donation.DonationType.FOOD)
+                .stream()
+                .map(this::mapToDonationResponse)
+                .collect(Collectors.toList());
+    }
+
+    /* ─── Money Donation Methods ─── */
+    public DonationResponse createMoneyDonation(Long userId, Double amount, String transactionId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        Donation donation = new Donation();
+        donation.setUser(user);
+        donation.setType(Donation.DonationType.MONEY);
+        donation.setStatus(Donation.DonationStatus.PENDING);
+        donation.setAmount(amount);
+        donation.setTransactionId(transactionId);
+        donation.setPaymentStatus(Donation.PaymentStatus.COMPLETED);
+
+        Donation savedDonation = donationRepository.save(donation);
+        return mapToDonationResponse(savedDonation);
+    }
+
+    public List<DonationResponse> getMoneyDonationsByUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        return donationRepository.findByUserAndType(user, Donation.DonationType.MONEY)
+                .stream()
+                .map(this::mapToDonationResponse)
+                .collect(Collectors.toList());
+    }
+
+    /* ─── Clothing Donation Methods ─── */
+    public DonationResponse createClothingDonation(Long userId, Integer targetAge, Integer quantity, String condition) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        Donation donation = new Donation();
+        donation.setUser(user);
+        donation.setType(Donation.DonationType.CLOTHING);
+        donation.setStatus(Donation.DonationStatus.PENDING);
+        donation.setTargetAge(targetAge);
+        donation.setClothingQuantity(quantity);
+        donation.setCondition(condition);
+
+        Donation savedDonation = donationRepository.save(donation);
+        return mapToDonationResponse(savedDonation);
+    }
+
+    public List<DonationResponse> getClothingDonationsByUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        return donationRepository.findByUserAndType(user, Donation.DonationType.CLOTHING)
+                .stream()
+                .map(this::mapToDonationResponse)
+                .collect(Collectors.toList());
+    }
+
     private DonationResponse mapToDonationResponse(Donation donation) {
         return DonationResponse.builder()
                 .id(donation.getId())
-                .userId(donation.getDonor().getId())
-                .donorName(donation.getDonor().getFirstName() + " " + donation.getDonor().getLastName())
+                .userId(donation.getUser().getId())
                 .type(donation.getType().name())
                 .status(donation.getStatus().name())
-                .description(donation.getDescription())
                 .riceQuantity(donation.getRiceQuantity())
                 .vegetableQuantity(donation.getVegetableQuantity())
-                .targetAgeGroup(donation.getTargetAgeGroup())
+                .targetAge(donation.getTargetAge())
                 .clothingQuantity(donation.getClothingQuantity())
                 .amount(donation.getAmount())
                 .transactionId(donation.getTransactionId())
+                .condition(donation.getCondition())
                 .createdAt(donation.getCreatedAt())
                 .updatedAt(donation.getUpdatedAt())
-                .approvedAt(donation.getApprovedAt())
                 .build();
     }
 }
