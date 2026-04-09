@@ -49,6 +49,14 @@ export const Layout = ({ children, session }: LayoutProps) => {
               >
                 History
               </button>
+              {session && (session.role === 'admin' || session.role === 'ADMIN') && (
+                <button
+                  onClick={() => navigate('/admin')}
+                  className="text-purple-700 hover:text-purple-900 transition font-semibold"
+                >
+                  Admin Panel
+                </button>
+              )}
             </div>
 
             {/* User Menu */}
